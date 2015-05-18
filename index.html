@@ -8,6 +8,8 @@
 	href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<script
+	src="//cdn.rawgit.com/mlevans/leaflet-hash/master/leaflet-hash.js"></script>
 <style>
 body {
 	width: 100%;
@@ -28,16 +30,24 @@ body {
 <body>
 	<div id="map"></div>
 	<script>
+		function h2c(v) {
+			if (v == 'e' || Math.floor(v / 50) % 2 == 0)
+				return "rgba(0,0,0,1)";
+			else
+				return 'rgba(0,0,0,0.4)';
+		}
+
 		var tile = L
 				.tileLayer("http://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg");
 
-		L.map("map", {
+		var map = L.map("map", {
 			zoom : 11,
 			maxZoom : 14,
 			minZoom : 5,
 			center : [ 35.691166, 139.700724 ],
 			layers : [ tile ]
-		}).attributionControl.addAttribution([ "電子国土基本図 （オルソ画像）",
+		});
+		map.attributionControl.addAttribution([ "電子国土基本図 （オルソ画像）",
 				"Landsat8画像(GSI,TSIC,GEO Grid/AIST)", "海底地形(GEBCO)",
 				"地理院タイル （標高タイル）" ].join(", "));
 
@@ -61,12 +71,7 @@ body {
 			});
 		});
 
-		function h2c(v) {
-			if (v == 'e' || Math.floor(v / 50) % 2 == 0)
-				return "rgba(0,0,0,1)";
-			else
-				return 'rgba(0,0,0,0.4)';
-		}
+		var hash = new L.Hash(map);
 	</script>
 </body>
 </html>
