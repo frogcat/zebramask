@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Zebramask by DEM</title>
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
+<link rel="stylesheet"
+	href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<style>
+body {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: black;
+}
+</style>
+</head>
+<body>
+	<div id="map"></div>
+	<script>
+		var tile = L
+				.tileLayer("http://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg");
+
+		L.map("map", {
+			zoom : 11,
+			maxZoom : 14,
+			minZoom : 5,
+			center : [ 35.691166, 139.700724 ],
+			layers : [ tile ]
+		}).attributionControl.addAttribution([ "電子国土基本図 （オルソ画像）",
+				"Landsat8画像(GSI,TSIC,GEO Grid/AIST)", "海底地形(GEBCO)",
+				"地理院タイル （標高タイル）" ].join(", "));
+
+		tile.on("tileload", function(event) {
+			var img = event.tile;
+			var url = event.url;
+			url = url.replace("/ort/", "/dem/").replace(".jpg", ".txt");
+			$.get(url, function(dem) {
+				var c = document.createElement("canvas");
+				c.setAttribute("width", "256");
+				c.setAttribute("height", "256");
+				var g = c.getContext("2d");
+				dem.split("\n").forEach(function(row, y) {
+					row.split(",").forEach(function(col, x) {
+						g.fillStyle = h2c(col);
+						g.fillRect(x, y, 1, 1);
+					});
+				});
+				var mask = "url('" + c.toDataURL() + "')";
+				img.style["-webkit-mask-image"] = mask;
+			});
+		});
+
+		function h2c(v) {
+			if (v == 'e' || Math.floor(v / 50) % 2 == 0)
+				return "rgba(0,0,0,1)";
+			else
+				return 'rgba(0,0,0,0.4)';
+		}
+	</script>
+</body>
+</html>
