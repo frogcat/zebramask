@@ -20,15 +20,28 @@ body {
 #map {
 	position: absolute;
 	top: 0;
+	bottom: 20px;
 	left: 0;
 	width: 100%;
-	height: 100%;
+}
+
+#footer {
+	font-family: Consolas;
+	font-size: 10pt;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 20px;
+	text-align: center;
+	color: white;
 	background: black;
 }
 </style>
 </head>
 <body>
 	<div id="map"></div>
+	<div id="footer">;</div>
 	<script>
 		function h2c(v) {
 			if (v == 'e' || Math.floor(v / 50) % 2 != 1)
@@ -65,15 +78,25 @@ body {
 				c.setAttribute("width", "256");
 				c.setAttribute("height", "256");
 				var g = c.getContext("2d");
+				var data = [];
 				dem.split("\n").forEach(function(row, y) {
+					var a = [];
 					row.split(",").forEach(function(col, x) {
 						g.fillStyle = h2c(col);
 						g.fillRect(x, y, 1, 1);
+						a.push(col == 'e' ? NaN : parseFloat(col));
 					});
+					data.push(a);
 				});
 				var mask = "url('" + c.toDataURL() + "')";
 				img.style["-webkit-mask-image"] = mask;
+				$(img).data("dem", data).on("mousemove", function(event) {
+					var x = event.offsetX;
+					var y = event.offsetY;
+					$("#footer").text($(this).data("dem")[y][x] + " (m)");
+				});
 			});
+
 		});
 
 		var hash = new L.Hash(map);
