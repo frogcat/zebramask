@@ -31,13 +31,16 @@ body {
 	<div id="map"></div>
 	<script>
 		function h2c(v) {
-			if (v == 'e' || Math.floor(v / 50) % 2 == 0)
-				return "rgba(0,0,0,1)";
+			if (v == 'e' || Math.floor(v / 50) % 2 != 1)
+				return "rgba(0,0,0,1.0)";
 			else
 				return 'rgba(0,0,0,0.4)';
 		}
 
-		var tile = L
+		var bg = L
+				.tileLayer("http://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png");
+
+		var fg = L
 				.tileLayer("http://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg");
 
 		var map = L.map("map", {
@@ -45,13 +48,15 @@ body {
 			maxZoom : 14,
 			minZoom : 5,
 			center : [ 35.691166, 139.700724 ],
-			layers : [ tile ]
+			layers : [ bg, fg ]
 		});
-		map.attributionControl.addAttribution([ "電子国土基本図 （オルソ画像）",
-				"Landsat8画像(GSI,TSIC,GEO Grid/AIST)", "海底地形(GEBCO)",
-				"地理院タイル （標高タイル）" ].join(", "));
+		map.attributionControl
+				.addAttribution([ "電子国土基本図 （オルソ画像）",
+						"Landsat8画像(GSI,TSIC,GEO Grid/AIST)", "海底地形(GEBCO)",
+						"地理院タイル （標高タイル、色別標高図）", "海域部は海上保安庁海洋情報部の資料を使用して作成" ]
+						.join(", "));
 
-		tile.on("tileload", function(event) {
+		fg.on("tileload", function(event) {
 			var img = event.tile;
 			var url = event.url;
 			url = url.replace("/ort/", "/dem/").replace(".jpg", ".txt");
